@@ -65,5 +65,43 @@ def test_yearly_tracks():
         print("====| YEARLY TRACKS OK |====")
     return is_valid
 
+
+def test_enrichment():
+    print("\n====| Testing Enrichment Logic |====")
+    client = LastFMclient()
+    # Check with a famous artist
+    test_artist = "Daft Punk"
+
+    print(f"Fetching details for: {test_artist}...")
+    details = client.get_artist_stats(test_artist)
+    print(details)
+    if not details:
+        print(f"####| FAILURE: Could not fetch details for {test_artist} |####")
+        return False
+    mock_track = {
+        'track_name': 'One More Time',
+        'artist_name': test_artist,
+        'track_popularity': 1,
+        'year': 2000
+    }
+    # FFusion
+    enriched_track = {**mock_track, **details}
+    # check requiered fields
+    required_fields = ['playcount', 'listeners', 'genres']
+    is_valid = all(field in enriched_track for field in required_fields)
+
+    if is_valid:
+        print(f"Success: Track '{enriched_track['track_name']}' enriched!")
+        print(f"Listeners : {enriched_track['listeners']}")
+        print(f"Genres : {', '.join(enriched_track['genres'][:3])}...")
+        print(f"Artist Playcount: {enriched_track['playcount']}")
+    else:
+        missing = [f for f in required_fields if f not in enriched_track]
+        print(f"####| FAILURE: Missing fields {missing} |####")
+    return is_valid
+
 if __name__ == "__main__":
-    test_api()
+    api_ok = test_api()
+    if api_ok:
+        test_yearly_tracks()
+        test_enrichment()

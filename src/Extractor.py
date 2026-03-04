@@ -84,7 +84,8 @@ class LastFMclient:
             'name': artist['name'],
             'playcount': int(stats.get('playcount', 0)),
             'listeners': int(stats.get('listeners', 0)),
-            'tags': [t['name'] for t in artist.get('tags', {}).get('tag', [])]
+            'genres': [t['name'] for t in artist.get('tags', {}).get('tag', [])],
+            'artist_popularity': int(artist.get('stats', {}).get('playcount', 0))
         }
 
 
