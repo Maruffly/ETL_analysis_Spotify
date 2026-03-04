@@ -41,10 +41,10 @@ class LastFMclient:
                 time.sleep(1)
         return None
 
-    def get_top_tracks_yearly(self, year, limit=1000):
+    def get_top_tracks_yearly(self, year, limit=200):
         tracks = []
         page = 1
-        requests_per_page = 100
+        requests_per_page = 50
 
         while len(tracks) < limit:
             params = {'tag': str(year), 'page': page, 'limit': requests_per_page}
@@ -56,7 +56,8 @@ class LastFMclient:
                 break
             batch = data[root_key].get('track', [])
 
-            if not batch: break
+            if not batch:
+                break
             for t in batch:
                 rank = t.get('@attr', {}).get('rank', 0)
                 tracks.append({
