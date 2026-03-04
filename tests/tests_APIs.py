@@ -107,9 +107,9 @@ def test_track_details():
         return False
 
     print(f"Track Details OK:")
-    print(f"   Album    : {details.get('album_name')}")
-    print(f"   Duration : {details.get('duration_ms')} ms")
-    print(f"   Listeners: {details.get('track_listeners')} (track specific)")
+    print(f"Album    : {details.get('album_name')}")
+    print(f"Duration : {details.get('duration_ms')} ms")
+    print(f"Listeners: {details.get('track_listeners')} (track specific)")
 
     if isinstance(details['duration_ms'], int) and details['duration_ms'] >= 0:
         print("DUration is valid integer.")

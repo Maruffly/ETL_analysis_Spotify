@@ -1,0 +1,15 @@
+
+==========================================TRACKS=====================================================
+Colonne             API                  Type              Description
+=====================================================================================================
+track_name          tag.getTopTracks,    String            Le titre
+album_nametrack     getInfo,String,      String            Nom de l'album contenant le titre
+track_popularity    rank                 Int               Classement de 1 à 100
+track_listeners     track.getInfo        Int               Nombre total d'écoute depuis la release
+duration_ms         track.getInfo        Int               Durée du track en ms
+==========================================ARTISTS=====================================================
+artist_name         tag.getTopTracks     String            Nom de l'artiste/groupe
+listeners           artist.getInfo       Int               Auditeurs total uniques sur Last.fm
+playcount           artist.getInfo       Int               Nombre total d'écoutes
+genre               artist.getInfo       List              Genre / style (tags)
+artist_popularity   artist.getInfo       Int               Alias de playcount

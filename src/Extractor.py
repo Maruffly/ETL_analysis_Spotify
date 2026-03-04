@@ -38,7 +38,7 @@ class LastFMclient:
                 if i == retries:
                     print(f"####| API ERROR AFTER {retries - 1} RETRIES|#### : {e}")
                     return None
-                time.sleep(1)
+                time.sleep(0.05)
         return None
 
     def get_top_tracks_yearly(self, year, limit=200):
@@ -81,7 +81,8 @@ class LastFMclient:
 
         artist = data['artist']
         stats = artist.get('stats', {})
-        artist_stats = {'name': artist['name'],
+        artist_stats = {
+            'name': artist['name'],
             'playcount': int(stats.get('playcount', 0)),
             'listeners': int(stats.get('listeners', 0)),
             'genres': [t['name'] for t in artist.get('tags', {}).get('tag', [])],
@@ -95,12 +96,13 @@ class LastFMclient:
             'track': track_name
         }
         data = self._get('track.getInfo', params)
-        if not data or 'track' in data == False:
+        if not data or 'track' not in data:
             return {}
 
         track = data.get('track', {})
         album = track.get('album', {})
-        track_detail = {'album_name': album.get('title', 'N/A'),
+        track_detail = {
+            'album_name': album.get('title', 'N/A'),
             'release_date': album.get('release_date', 'N/A'),
             'duration_ms': int(track.get('duration', 0)),
             'track_listeners': int(track.get('listeners', 0))

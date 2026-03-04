@@ -17,13 +17,12 @@ enriched_tracks = enricher.enrich_tracks(top_200_raw_tracks)
 df = pd.DataFrame(enriched_tracks)
 
 # SORT
-df = df.sort_values(by='artist_popularity', ascending=False)
+df = df.sort_values(by='artist_popularity', ascending=True)
 
 # OUTPUT
 filename = f"top_200_tracks_{year_to_test}.csv"
 df.to_csv(filename, index=False, encoding='utf-8-sig')
 
-# DISPLAY
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', 1000)
 print(df.head(10))

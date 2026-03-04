@@ -12,3 +12,4 @@ numpy==2.0.3
 
 # Observability
 matplotlib==3.7.2
+tqdm==4.67.3
