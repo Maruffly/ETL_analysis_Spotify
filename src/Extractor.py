@@ -44,7 +44,7 @@ class LastFMclient:
     def get_top_tracks_yearly(self, year, limit=200):
         tracks = []
         page = 1
-        requests_per_page = 50
+        requests_per_page = 100
 
         while len(tracks) < limit:
             params = {'tag': str(year), 'page': page, 'limit': requests_per_page}
@@ -81,13 +81,31 @@ class LastFMclient:
 
         artist = data['artist']
         stats = artist.get('stats', {})
-        return {
-            'name': artist['name'],
+        artist_stats = {'name': artist['name'],
             'playcount': int(stats.get('playcount', 0)),
             'listeners': int(stats.get('listeners', 0)),
             'genres': [t['name'] for t in artist.get('tags', {}).get('tag', [])],
             'artist_popularity': int(artist.get('stats', {}).get('playcount', 0))
         }
+        return artist_stats
+
+    def get_track_details(self, artist_name, track_name):
+        params = {
+            'artist': artist_name,
+            'track': track_name
+        }
+        data = self._get('track.getInfo', params)
+        if not data or 'track' in data == False:
+            return {}
+
+        track = data.get('track', {})
+        album = track.get('album', {})
+        track_detail = {'album_name': album.get('title', 'N/A'),
+            'release_date': album.get('release_date', 'N/A'),
+            'duration_ms': int(track.get('duration', 0)),
+            'track_listeners': int(track.get('listeners', 0))
+        }
+        return track_detail
 
 
 

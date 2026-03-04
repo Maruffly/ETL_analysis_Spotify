@@ -5,21 +5,25 @@ import pandas as pd
 # INIT
 client = LastFMclient()
 enricher = DataEnricher(client)
+year_to_test = 2023
 
 # EXTRACTION
-top_200_raw_tracks = client.get_top_tracks_yearly(2023, limit=200)
+top_200_raw_tracks = client.get_top_tracks_yearly(year_to_test, limit=200)
 
 # TRANSFORMATION
-unique_artists = list(set(t['artist_name'] for t in top_200_raw_tracks))
-artist_data = {}
-for artist in unique_artists:
-    # Utilise ta méthode get_artist_stats testée
-    stats = client.get_artist_stats(artist)
-    if stats:
-        artist_data[artist] = stats
-
 enriched_tracks = enricher.enrich_tracks(top_200_raw_tracks)
 
 # PREPARE LOADING
 df = pd.DataFrame(enriched_tracks)
-print(df[['track_name', 'artist_name', 'genres', 'listeners']].head())
+
+# SORT
+df = df.sort_values(by='artist_popularity', ascending=False)
+
+# OUTPUT
+filename = f"top_200_tracks_{year_to_test}.csv"
+df.to_csv(filename, index=False, encoding='utf-8-sig')
+
+# DISPLAY
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', 1000)
+print(df.head(10))

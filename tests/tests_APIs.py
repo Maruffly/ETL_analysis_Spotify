@@ -1,7 +1,7 @@
 import sys
 import os
 from src.Extractor import LastFMclient
-# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from src.Transformer import DataEnricher
 
 def test_api():
     print("====| Checking API status |====")
@@ -67,38 +67,55 @@ def test_yearly_tracks():
 
 
 def test_enrichment():
-    print("\n====| Testing Enrichment Logic |====")
+    print("\n====| Testing Enrichment Class |====")
     client = LastFMclient()
-    # Check with a famous artist
-    test_artist = "Daft Punk"
+    enricher = DataEnricher(client)
 
-    print(f"Fetching details for: {test_artist}...")
-    details = client.get_artist_stats(test_artist)
-    print(details)
+    # simulate duplacated artists
+    test_tracks = [
+        {'track_name': 'Song A', 'artist_name': 'MGMT', 'year': 2023},
+        {'track_name': 'Song B', 'artist_name': 'MGMT', 'year': 2023}
+    ]
+
+    # "Enrich artist" log should display once
+    results = enricher.enrich_tracks(test_tracks)
+    if results and 'listeners' in results[0]:
+        print("====| ENRICHMENT OK |====")
+        return True
+    return False
+
+
+def test_track_details():
+    print("\n====| Testing Track Details |====")
+
+    client = LastFMclient()
+
+    artist_test = "Aphex Twin"
+    track_test = "QKThr"
+
+    print(f"Fetching details for: {track_test} by {artist_test}...")
+    details = client.get_track_details(artist_test, track_test)
+
     if not details:
-        print(f"####| FAILURE: Could not fetch details for {test_artist} |####")
+        print("####| FAILURE: No data returned |####")
         return False
-    mock_track = {
-        'track_name': 'One More Time',
-        'artist_name': test_artist,
-        'track_popularity': 1,
-        'year': 2000
-    }
-    # FFusion
-    enriched_track = {**mock_track, **details}
-    # check requiered fields
-    required_fields = ['playcount', 'listeners', 'genres']
-    is_valid = all(field in enriched_track for field in required_fields)
+    required_keys = ['album_name', 'duration_ms', 'track_listeners']
+    missing_keys = [k for k in required_keys if k not in details]
 
-    if is_valid:
-        print(f"Success: Track '{enriched_track['track_name']}' enriched!")
-        print(f"Listeners : {enriched_track['listeners']}")
-        print(f"Genres : {', '.join(enriched_track['genres'][:3])}...")
-        print(f"Artist Playcount: {enriched_track['playcount']}")
+    if missing_keys:
+        print(f"####| FAILURE: keys missing  {missing_keys} |####")
+        return False
+
+    print(f"Track Details OK:")
+    print(f"   Album    : {details.get('album_name')}")
+    print(f"   Duration : {details.get('duration_ms')} ms")
+    print(f"   Listeners: {details.get('track_listeners')} (track specific)")
+
+    if isinstance(details['duration_ms'], int) and details['duration_ms'] >= 0:
+        print("DUration is valid integer.")
     else:
-        missing = [f for f in required_fields if f not in enriched_track]
-        print(f"####| FAILURE: Missing fields {missing} |####")
-    return is_valid
+        print("####| WARNING: Duration format |####")
+    return True
 
 if __name__ == "__main__":
     api_ok = test_api()
