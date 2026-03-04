@@ -4,7 +4,6 @@ flake8==7.0.0
 
 # API
 requests==2.31.0
-spotipy==2.25.0
 python-dotenv==1.0.0
 
 # Data

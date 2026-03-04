@@ -1,38 +1,36 @@
-import spotipy
-from src.ETL import get_spotify_client
+import sys
+import os
+from src.Extractor import LastFMclient
+# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 def test_api():
-    sp = get_spotify_client()
     print("====| Checking API status |====")
+
+    client = LastFMclient()
+    data_artist = client.get_artist_metadata("Aphex Twin")
+    data_track = client.get_track_info("Aphex Twin", "Syro")
 
     try:
         # test 1 : simple search
-        search_res = sp.search(q='MGMT', type='track', market='FR', limit=1)
-        if not search_res['tracks']['items']:
-            print("####| No Results! |#####")
+        if data_artist and 'artist'in data_artist:
+            artist = data_artist['artist']
+            stats = artist.get('stats', {})
 
-        track = search_res['tracks']['items'][0]
-        track_name = track['name']
+            print(f"Artist : {artist['name']}")
+            print(f"Playcount : {stats.get('playcount')}")
+            print(f"Listeners : {stats.get('listeners')}")
+        else:
+            print("Artist missing / incorrect format")
 
-        artist_id = track['artists'][0]['id']
-        print(f"Search API OK : {track_name} by {artist_id} (MGMT)")
+        if data_track and 'track' in data_track:
+            track = data_track['track']
+            track_playcount = track.get('playcount')
+            track_listeners = track.get('listeners')
 
+            print(f"Track ID : {track['name']}")
+            print(f"Track Playcount : {track_playcount}")
+            print(f"Track Listeners : {track_listeners}")
 
-        # test 2 : get details
-        ## Complete artist object needed
-        artist = sp.artist(artist_id)
-
-        name = artist.get('name')
-        popularity = artist.get('popularity', {})
-        genres = artist.get('genres', [])
-
-        total_followers = artist.get('followers', {}).get('total', 0)
-
-
-        print(f"Artist : {artist}")
-        print(f"Genres : {genres}")
-        print(f"Popularity : {popularity}")
-        print(f"Followers : {total_followers}")
         print("====| ACCESS OK |====")
         return True
 
