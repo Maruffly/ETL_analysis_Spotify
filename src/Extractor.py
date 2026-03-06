@@ -40,8 +40,9 @@ class LastFMclient:
             try:
                 response = requests.get(self.base_url, params=params, timeout=10)
 
+                data = response.json()
                 # back off exponentially then retry
-                if response.status_code in (29, 429):
+                if 'error' in data and data['error'] == 29:
                     wait = (2 ** attempt) + random.random()
                     print(f"[RATE LIMIT] Retrying in {wait:.2f}s... (attempt {attempt + 1}/{retries})")
                     time.sleep(wait)
@@ -73,16 +74,21 @@ class LastFMclient:
         """
         tracks = []
         page = 1
-        requests_per_page = 100
+        requests_per_page = 200
 
         while len(tracks) < limit:
             params = {'tag': str(year), 'page': page, 'limit': requests_per_page}
             data = self._get('tag.getTopTracks', params)
 
+            if not data or 'error' in data:
+                        error_msg = data.get('message', 'Unknown error') if data else "No response"
+                        print(f"[API ERROR] Year {year}: {error_msg}")
+                        break
+
             root_key = 'tracks' if 'tracks' in data else 'toptracks'
 
             if not data or root_key not in data:
-                print(f"KEY {root_key} missing")
+                print(f"[DEBUG] Keys found in data: {data.keys()}")
                 break
 
             batch = data[root_key].get('track', [])
